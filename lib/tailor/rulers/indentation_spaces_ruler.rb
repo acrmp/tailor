@@ -15,6 +15,7 @@ class Tailor
           :embexpr_beg,
           :embexpr_end,
           :file_beg,
+          :ident,
           :ignored_nl,
           :kw,
           :lbrace,
@@ -92,6 +93,13 @@ class Tailor
         @lines = LineContinuations.new(file_name) if line_continuations?
       end
 
+      def ident_update(token, lexed_line, lineno, column)
+        if @last_lparen_line == lineno and ! @first_arg_column
+          @first_arg_line = lineno
+          @first_arg_column = column
+        end
+      end
+
       def ignored_nl_update(current_lexed_line, lineno, column)
         log "indent reasons on entry: #{@manager.indent_reasons}"
 
@@ -164,6 +172,7 @@ class Tailor
       def lparen_update(lineno, column)
         token = Tailor::Lexer::Token.new('(')
         @manager.update_for_opening_reason(:on_lparen, token, lineno)
+        @last_lparen_line = lineno
       end
 
       def nl_update(current_lexed_line, lineno, column)
@@ -243,6 +252,7 @@ class Tailor
       end
 
       def rparen_update(current_lexed_line, lineno, column)
+        @last_rparen_line = lineno
         if @manager.multi_line_parens?(lineno)
           log 'End of multi-line parens!'
 
@@ -294,6 +304,25 @@ class Tailor
         end
       end
 
+      def argument_alignment?
+        @options[:argument_alignment] and @options[:argument_alignment] != :off
+      end
+
+      def with_argument_alignment(lineno, should_be_at)
+        return should_be_at unless argument_alignment?
+        result = if @first_arg_line and @first_arg_column and
+          lineno > @first_arg_line
+          @first_arg_column
+        else
+          should_be_at
+        end
+        if @last_rparen_line == lineno
+          @first_arg_line = false
+          @first_arg_column = false
+        end
+        result
+      end
+
       # Checks if the line's indentation level is appropriate.
       #
       # @param [Fixnum] lineno The line the potential problem is on.
@@ -302,6 +331,7 @@ class Tailor
         log "Measuring..."
 
         should_be_at = with_line_continuations(lineno, @manager.should_be_at)
+        should_be_at = with_argument_alignment(lineno, should_be_at)
 
         if @manager.actual_indentation != should_be_at
           msg = "Line is indented to column #{@manager.actual_indentation}, "
