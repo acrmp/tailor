@@ -81,6 +81,12 @@ class Tailor
             options.style[:allow_trailing_line_spaces] = c
           end
 
+          opt.on('--allow-unnecessary-double-quotes BOOL',
+            'Check for unnecessary use of double quotes?',
+            '(default: false)') do |c|
+            options.style[:allow_unnecessary_double_quotes] = c
+          end
+
           opt.on('--allow-unnecessary-interpolation BOOL',
             'Check for unnecessary interpolation in strings?',
             '(default: false)') do |c|
@@ -301,7 +307,6 @@ tailor --show-config
           end
         end
       end
-
     end
   end
 end
