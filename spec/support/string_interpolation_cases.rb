@@ -12,6 +12,10 @@ INTERPOLATION['no_string'] =
   %q{puts bing
 }
 
+INTERPOLATION['two_variables'] =
+  %q{puts "#{bing}#{bar}"
+}
+
 INTERPOLATION['two_strings_with_unnecessary_interpolation'] =
   %q{puts "#{foo}" + "#{bar}"
 }
@@ -34,7 +38,7 @@ INTERPOLATION['nested_interpolation'] =
   if hours < 24
     "#{(hours > 0) ? "#{hours} hour" : '' }#{(hours > 1) ? 's' : ''}" +
       " #{(mins > 0) ? "#{mins} minute" : '' }#{(mins > 1) ? 's' : ''}" +
-      " #{seconds} second#{(seconds > 1) ? "s" : ''} ago"
+      " #{seconds} second#{(seconds > 1) ? 's' : ''} ago"
   else
     time.to_s
   end

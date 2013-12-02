@@ -6,6 +6,8 @@ class Tailor
 
       EVENTS = [
         :on_embexpr_beg,
+        :on_embexpr_end,
+        :on_rbrace,
         :on_tstring_beg,
         :on_tstring_content,
         :on_tstring_end
@@ -34,7 +36,7 @@ class Tailor
       # @param [Array] tokens The filtered tokens
       def measure(lineno, tokens)
         return if @config
-        unless has_content?(tokens) or no_expression?(tokens)
+        if no_content?(tokens) and one_expression?(tokens)
           @problems << Problem.new('unnecessary_string_interpolation', lineno,
             column(tokens.first), 'Variable interpolated unnecessarily',
             @options[:level])
@@ -57,16 +59,19 @@ class Tailor
         end.slice_before { |t| t[1] == :on_tstring_beg }
       end
 
-      def has_content?(tokens)
-        tokens.map { |t| t[1] }.include?(:on_tstring_content)
-      end
-
       def line_number(token)
         token.first.first
       end
 
-      def no_expression?(tokens)
-        tokens.size < 3
+      def no_content?(tokens)
+        ! tokens.map { |t| t[1] }.include?(:on_tstring_content)
+      end
+
+      def one_expression?(tokens)
+        tokens.select { |t| t[1] == :on_embexpr_beg }.size == 1 and
+          tokens.select do |t|
+            t[1] == :on_embexpr_end or t[1] == :on_rbrace
+          end.any?
       end
 
       def reset_tokens

@@ -211,7 +211,9 @@ class Tailor
           msg << ' Must be at an @embexpr_end.'
           log msg
           @embexpr_nesting.pop
-          @manager.update_for_closing_reason(:on_embexpr_end, current_lexed_line)
+          @manager.update_for_closing_reason(:on_embexpr_end,
+            current_lexed_line)
+
           return
         end
 
@@ -310,7 +312,7 @@ class Tailor
       # @param [Fixnum] lineno The line the potential problem is on.
       # @param [Fixnum] column The column the potential problem is on.
       def measure(lineno, column)
-        log "Measuring..."
+        log 'Measuring...'
 
         should_be_at = with_line_continuations(lineno, @manager.should_be_at)
         should_be_at = with_argument_alignment(lineno, should_be_at)

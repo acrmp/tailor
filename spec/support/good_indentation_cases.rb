@@ -737,7 +737,7 @@ INDENT_OK['combo2'] =
 end}
 
 INDENT_OK['combo3'] =
-  %q{def report_turducken(results, performance_results)
+  %Q{def report_turducken(results, performance_results)
   stuffing[:log_files] = { "\#{File.basename @logger.log_file_location}/path" =>
     File.read(@logger.log_file_location).gsub(/(?<f><)(?<q>\\/)?(?<w>\\w)/,
       '\\k<f>!\\k<q>\\k<w>') }.merge remote_logs
